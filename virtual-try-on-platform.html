@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>虚拟试穿平台 - Virtual Try-On</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            color: #f0f0f0;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+        }
+
+        .preview-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        input[type="number"], input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus, input[type="file"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .photo-upload {
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .photo-upload:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .photo-upload.dragover {
+            border-color: #667eea;
+            background: #e6f0ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .preview-area {
+            min-height: 400px;
+            background: #fff;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-photo {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .clothing-catalog {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .clothing-item {
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .clothing-item:hover {
+            transform: scale(1.05);
+            border-color: #667eea;
+        }
+
+        .clothing-item.selected {
+            border-color: #667eea;
+            background: #e6f0ff;
+        }
+
+        .clothing-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+
+        .clothing-name {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .measurements-display {
+            background: #e8f5e8;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .bmi-indicator {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .bmi-normal { background: #d4edda; color: #155724; }
+        .bmi-underweight { background: #cce7ff; color: #004085; }
+        .bmi-overweight { background: #fff3cd; color: #856404; }
+        .bmi-obese { background: #f8d7da; color: #721c24; }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .clothing-catalog {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛍️ 虚拟试穿平台</h1>
+            <p class="subtitle">上传您的照片，输入身高体重，即可体验虚拟试穿效果</p>
+        </header>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2>📝 个人信息</h2>
+
+                <div class="form-group">
+                    <label for="height">身高 (cm):</label>
+                    <input type="number" id="height" min="100" max="250" placeholder="请输入身高">
+                </div>
+
+                <div class="form-group">
+                    <label for="weight">体重 (kg):</label>
+                    <input type="number" id="weight" min="30" max="200" placeholder="请输入体重">
+                </div>
+
+                <div class="form-group">
+                    <label>上传您的照片:</label>
+                    <div class="photo-upload" id="photoUpload">
+                        <div class="upload-icon">📷</div>
+                        <p>点击或拖拽上传照片</p>
+                        <input type="file" id="photoInput" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+
+                <div class="measurements-display" id="measurementsDisplay" style="display: none;">
+                    <h4>身体数据分析:</h4>
+                    <p>BMI: <span id="bmiValue"></span></p>
+                    <div id="bmiIndicator" class="bmi-indicator"></div>
+                    <p>建议尺码: <span id="suggestedSize"></span></p>
+                </div>
+
+                <button class="btn" onclick="processImage()">🎯 开始虚拟试穿</button>
+            </div>
+
+            <div class="preview-section">
+                <h2>👗 试穿预览</h2>
+
+                <div class="preview-area" id="previewArea">
+                    <p style="color: #999;">请先上传照片并填写身体信息</p>
+                </div>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>正在生成虚拟试穿效果...</p>
+                </div>
+
+                <h3>服装选择:</h3>
+                <div class="clothing-catalog" id="clothingCatalog">
+                    <div class="clothing-item" data-clothing="dress1">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23ff6b9d'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='12'%3E连衣裙%3C/text%3E%3C/svg%3E" alt="连衣裙" class="clothing-img">
+                        <div class="clothing-name">春季连衣裙</div>
+                    </div>
+
+                    <div class="clothing-item" data-clothing="shirt1">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%2351cf66'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='12'%3E衬衫%3C/text%3E%3C/svg%3E" alt="衬衫" class="clothing-img">
+                        <div class="clothing-name">商务衬衫</div>
+                    </div>
+
+                    <div class="clothing-item" data-clothing="jeans1">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23339af0'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='12'%3E牛仔裤%3C/text%3E%3C/svg%3E" alt="牛仔裤" class="clothing-img">
+                        <div class="clothing-name">经典牛仔裤</div>
+                    </div>
+
+                    <div class="clothing-item" data-clothing="sweater1">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23ffa94d'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='12'%3E毛衣%3C/text%3E%3C/svg%3E" alt="毛衣" class="clothing-img">
+                        <div class="clothing-name">针织毛衣</div>
+                    </div>
+
+                    <div class="clothing-item" data-clothing="suit1">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%236c5ce7'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='12'%3E西装%3C/text%3E%3C/svg%3E" alt="西装" class="clothing-img">
+                        <div class="clothing-name">正装西装</div>
+                    </div>
+
+                    <div class="clothing-item" data-clothing="tshirt1">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23fa5252'/%3E%3Ctext x='40' y='45' text-anchor='middle' fill='white' font-size='12'%3ET恤%3C/text%3E%3C/svg%3E" alt="T恤" class="clothing-img">
+                        <div class="clothing-name">休闲T恤</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let userPhoto = null;
+        let userHeight = 0;
+        let userWeight = 0;
+        let selectedClothing = 'dress1'; // 默认选择
+        let userPhotoImage = null; // 存储Image对象
+
+        // 服装模板数据
+        const clothingTemplates = {
+            dress1: {
+                name: '春季连衣裙',
+                color: '#ff6b9d',
+                areas: [
+                    { x: 0.25, y: 0.4, w: 0.5, h: 0.5, type: 'dress' }
+                ]
+            },
+            shirt1: {
+                name: '商务衬衫',
+                color: '#51cf66',
+                areas: [
+                    { x: 0.3, y: 0.4, w: 0.4, h: 0.3, type: 'shirt' }
+                ]
+            },
+            jeans1: {
+                name: '经典牛仔裤',
+                color: '#339af0',
+                areas: [
+                    { x: 0.32, y: 0.7, w: 0.36, h: 0.3, type: 'pants' }
+                ]
+            },
+            sweater1: {
+                name: '针织毛衣',
+                color: '#ffa94d',
+                areas: [
+                    { x: 0.28, y: 0.4, w: 0.44, h: 0.35, type: 'sweater' }
+                ]
+            },
+            suit1: {
+                name: '正装西装',
+                color: '#6c5ce7',
+                areas: [
+                    { x: 0.29, y: 0.4, w: 0.42, h: 0.4, type: 'suit' }
+                ]
+            },
+            tshirt1: {
+                name: '休闲T恤',
+                color: '#fa5252',
+                areas: [
+                    { x: 0.31, y: 0.4, w: 0.38, h: 0.24, type: 'tshirt' }
+                ]
+            }
+        };
+
+        // 照片上传处理
+        const photoUpload = document.getElementById('photoUpload');
+        const photoInput = document.getElementById('photoInput');
+        const previewArea = document.getElementById('previewArea');
+
+        photoUpload.addEventListener('click', () => {
+            photoInput.click();
+        });
+
+        photoUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            photoUpload.classList.add('dragover');
+        });
+
+        photoUpload.addEventListener('dragleave', () => {
+            photoUpload.classList.remove('dragover');
+        });
+
+        photoUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            photoUpload.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handlePhotoUpload(files[0]);
+            }
+        });
+
+        photoInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handlePhotoUpload(e.target.files[0]);
+            }
+        });
+
+        function handlePhotoUpload(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('请上传图片文件');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                userPhoto = e.target.result;
+
+                // 预加载图片
+                userPhotoImage = new Image();
+                userPhotoImage.onload = () => {
+                    console.log('图片加载完成:', userPhotoImage.width, 'x', userPhotoImage.height);
+                    displayUserPhoto();
+                };
+                userPhotoImage.src = userPhoto;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function displayUserPhoto() {
+            previewArea.innerHTML = `<img src="${userPhoto}" alt="用户照片" class="user-photo" id="userPhotoImg">`;
+        }
+
+        // 身高体重输入处理
+        document.getElementById('height').addEventListener('input', updateMeasurements);
+        document.getElementById('weight').addEventListener('input', updateMeasurements);
+
+        function updateMeasurements() {
+            const height = parseFloat(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+
+            if (height && weight) {
+                userHeight = height;
+                userWeight = weight;
+
+                const bmi = calculateBMI(weight, height);
+                const suggestedSize = getSuggestedSize(bmi, height, weight);
+
+                document.getElementById('bmiValue').textContent = bmi.toFixed(1);
+
+                const bmiIndicator = document.getElementById('bmiIndicator');
+                const bmiCategory = getBMICategory(bmi);
+                bmiIndicator.textContent = bmiCategory.text;
+                bmiIndicator.className = `bmi-indicator ${bmiCategory.class}`;
+
+                document.getElementById('suggestedSize').textContent = suggestedSize;
+                document.getElementById('measurementsDisplay').style.display = 'block';
+            }
+        }
+
+        function calculateBMI(weight, height) {
+            return weight / Math.pow(height / 100, 2);
+        }
+
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) return { text: '偏瘦', class: 'bmi-underweight' };
+            if (bmi < 24) return { text: '正常', class: 'bmi-normal' };
+            if (bmi < 28) return { text: '偏胖', class: 'bmi-overweight' };
+            return { text: '肥胖', class: 'bmi-obese' };
+        }
+
+        function getSuggestedSize(bmi, height, weight) {
+            if (height < 160) {
+                if (bmi < 20) return 'XS';
+                if (bmi < 23) return 'S';
+                if (bmi < 26) return 'M';
+                return 'L';
+            } else if (height < 170) {
+                if (bmi < 19) return 'S';
+                if (bmi < 22) return 'M';
+                if (bmi < 25) return 'L';
+                return 'XL';
+            } else {
+                if (bmi < 20) return 'M';
+                if (bmi < 23) return 'L';
+                if (bmi < 26) return 'XL';
+                return 'XXL';
+            }
+        }
+
+        // 虚拟试穿处理
+        function processImage() {
+            console.log('开始处理虚拟试穿...');
+            console.log('用户照片:', !!userPhoto);
+            console.log('身高:', userHeight);
+            console.log('体重:', userWeight);
+            console.log('选择的服装:', selectedClothing);
+
+            if (!userPhoto) {
+                alert('请先上传您的照片');
+                return;
+            }
+
+            if (!userHeight || !userWeight) {
+                alert('请填写身高和体重信息');
+                return;
+            }
+
+            if (!selectedClothing) {
+                alert('请选择要试穿的服装');
+                return;
+            }
+
+            // 显示加载动画
+            document.getElementById('loading').style.display = 'block';
+            previewArea.style.display = 'none';
+
+            // 模拟处理时间
+            setTimeout(() => {
+                generateVirtualTryOn();
+            }, 1500);
+        }
+
+        function generateVirtualTryOn() {
+            console.log('生成虚拟试穿效果...');
+
+            // 隐藏加载动画
+            document.getElementById('loading').style.display = 'none';
+            previewArea.style.display = 'flex';
+
+            if (!userPhotoImage) {
+                console.error('用户照片未正确加载');
+                return;
+            }
+
+            // 创建画布
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+
+            // 设置画布尺寸
+            canvas.width = 400;
+            canvas.height = 500;
+
+            // 绘制用户照片
+            const imgAspect = userPhotoImage.width / userPhotoImage.height;
+            const canvasAspect = canvas.width / canvas.height;
+
+            let drawWidth, drawHeight, drawX, drawY;
+
+            if (imgAspect > canvasAspect) {
+                // 图片更宽，以高度为准
+                drawHeight = canvas.height;
+                drawWidth = drawHeight * imgAspect;
+                drawX = (canvas.width - drawWidth) / 2;
+                drawY = 0;
+            } else {
+                // 图片更高，以宽度为准
+                drawWidth = canvas.width;
+                drawHeight = drawWidth / imgAspect;
+                drawX = 0;
+                drawY = (canvas.height - drawHeight) / 2;
+            }
+
+            ctx.drawImage(userPhotoImage, drawX, drawY, drawWidth, drawHeight);
+
+            // 添加服装效果
+            addClothingEffect(ctx, selectedClothing, canvas.width, canvas.height);
+
+            // 显示结果
+            previewArea.innerHTML = `
+                <div style="text-align: center;">
+                    <canvas width="400" height="500" style="max-width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);" id="resultCanvas"></canvas>
+                    <div style="margin-top: 15px;">
+                        <p style="margin: 10px 0; color: #666;">试穿效果: ${clothingTemplates[selectedClothing].name}</p>
+                        <button class="btn" onclick="saveResult()" style="width: auto; margin: 5px;">💾 保存图片</button>
+                        <button class="btn" onclick="shareResult()" style="width: auto; margin: 5px;">📤 分享</button>
+                        <button class="btn" onclick="tryAgain()" style="width: auto; margin: 5px;">🔄 重新试穿</button>
+                    </div>
+                </div>
+            `;
+
+            const resultCanvas = document.getElementById('resultCanvas');
+            const resultCtx = resultCanvas.getContext('2d');
+            resultCtx.drawImage(canvas, 0, 0);
+        }
+
+        function addClothingEffect(ctx, clothing, canvasWidth, canvasHeight) {
+            const template = clothingTemplates[clothing];
+            if (!template) return;
+
+            // 设置混合模式
+            ctx.globalCompositeOperation = 'source-atop';
+
+            // 为不同服装类型创建不同的效果
+            template.areas.forEach(area => {
+                const x = area.x * canvasWidth;
+                const y = area.y * canvasHeight;
+                const w = area.w * canvasWidth;
+                const h = area.h * canvasHeight;
+
+                // 创建渐变效果
+                const gradient = ctx.createLinearGradient(x, y, x + w, y + h);
+                gradient.addColorStop(0, template.color + '80'); // 50% 透明度
+                gradient.addColorStop(0.5, template.color + 'AA'); // 66% 透明度
+                gradient.addColorStop(1, template.color + '60'); // 40% 透明度
+
+                ctx.fillStyle = gradient;
+
+                // 根据服装类型绘制不同形状
+                switch(area.type) {
+                    case 'dress':
+                        drawDress(ctx, x, y, w, h);
+                        break;
+                    case 'shirt':
+                        drawShirt(ctx, x, y, w, h);
+                        break;
+                    case 'pants':
+                        drawPants(ctx, x, y, w, h);
+                        break;
+                    case 'sweater':
+                        drawSweater(ctx, x, y, w, h);
+                        break;
+                    case 'suit':
+                        drawSuit(ctx, x, y, w, h);
+                        break;
+                    case 'tshirt':
+                        drawTShirt(ctx, x, y, w, h);
+                        break;
+                }
+            });
+
+            // 恢复混合模式
+            ctx.globalCompositeOperation = 'source-over';
+
+            // 添加品牌标签
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            ctx.fillRect(10, 10, 160, 35);
+            ctx.fillStyle = '#333';
+            ctx.font = 'bold 14px Arial';
+            ctx.fillText('虚拟试穿: ' + template.name, 15, 30);
+        }
+
+        // 不同服装类型的绘制函数
+        function drawDress(ctx, x, y, w, h) {
+            ctx.beginPath();
+            ctx.moveTo(x + w * 0.2, y);
+            ctx.lineTo(x + w * 0.8, y);
+            ctx.lineTo(x + w, y + h * 0.3);
+            ctx.lineTo(x + w, y + h);
+            ctx.lineTo(x, y + h);
+            ctx.lineTo(x, y + h * 0.3);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawShirt(ctx, x, y, w, h) {
+            ctx.fillRect(x, y, w, h);
+            // 添加领口
+            ctx.beginPath();
+            ctx.arc(x + w/2, y, w * 0.1, 0, Math.PI);
+            ctx.fill();
+        }
+
+        function drawPants(ctx, x, y, w, h) {
+            // 左腿
+            ctx.fillRect(x, y, w * 0.45, h);
+            // 右腿
+            ctx.fillRect(x + w * 0.55, y, w * 0.45, h);
+        }
+
+        function drawSweater(ctx, x, y, w, h) {
+            ctx.fillRect(x, y, w, h);
+            // 添加圆领
+            ctx.beginPath();
+            ctx.arc(x + w/2, y + h * 0.1, w * 0.08, 0, 2 * Math.PI);
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-atop';
+        }
+
+        function drawSuit(ctx, x, y, w, h) {
+            ctx.fillRect(x, y, w, h);
+            // 添加西装领
+            ctx.beginPath();
+            ctx.moveTo(x + w * 0.3, y);
+            ctx.lineTo(x + w * 0.1, y + h * 0.3);
+            ctx.lineTo(x + w * 0.4, y + h * 0.4);
+            ctx.lineTo(x + w * 0.5, y);
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(x + w * 0.7, y);
+            ctx.lineTo(x + w * 0.9, y + h * 0.3);
+            ctx.lineTo(x + w * 0.6, y + h * 0.4);
+            ctx.lineTo(x + w * 0.5, y);
+            ctx.fill();
+        }
+
+        function drawTShirt(ctx, x, y, w, h) {
+            ctx.fillRect(x, y, w, h);
+            // 添加圆领
+            ctx.beginPath();
+            ctx.arc(x + w/2, y + h * 0.05, w * 0.06, 0, 2 * Math.PI);
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-atop';
+        }
+
+        function tryAgain() {
+            if (userPhoto) {
+                displayUserPhoto();
+            } else {
+                previewArea.innerHTML = '<p style="color: #999;">请先上传照片并填写身体信息</p>';
+            }
+        }
+
+        function saveResult() {
+            const canvas = document.getElementById('resultCanvas');
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = `virtual-try-on-${selectedClothing}-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+        }
+
+        function shareResult() {
+            if (navigator.share) {
+                const canvas = document.getElementById('resultCanvas');
+                canvas.toBlob(blob => {
+                    const file = new File([blob], 'virtual-try-on.png', { type: 'image/png' });
+                    navigator.share({
+                        title: '我的虚拟试穿效果',
+                        text: `快来看看我试穿${clothingTemplates[selectedClothing].name}的效果！`,
+                        files: [file]
+                    });
+                });
+            } else {
+                alert('您的浏览器不支持分享功能，请保存图片后手动分享');
+            }
+        }
+
+        // 等待页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 服装选择处理
+            const clothingItems = document.querySelectorAll('.clothing-item');
+            clothingItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    clothingItems.forEach(i => i.classList.remove('selected'));
+                    item.classList.add('selected');
+                    selectedClothing = item.dataset.clothing;
+                    console.log('选择了服装:', selectedClothing);
+                });
+            });
+
+            // 默认选择第一个服装
+            if (clothingItems.length > 0) {
+                clothingItems[0].click();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机猫咪图片查看器</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        #catButton {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 30px;
+        }
+
+        #catButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #catButton:active {
+            transform: translateY(0);
+        }
+
+        .image-container {
+            margin-top: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background: #f8f9fa;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #catImage {
+            max-width: 100%;
+            max-height: 500px;
+            border-radius: 15px;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading {
+            color: #666;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐱 随机猫咪图片查看器</h1>
+        <button id="catButton">召唤一只猫咪!</button>
+
+        <div class="image-container">
+            <div id="loadingText" class="loading hidden">正在召唤猫咪中...</div>
+            <img id="catImage" src="" alt="随机猫咪图片" class="hidden">
+        </div>
+    </div>
+
+    <script>
+        const catButton = document.getElementById('catButton');
+        const catImage = document.getElementById('catImage');
+        const loadingText = document.getElementById('loadingText');
+
+        function summonCat() {
+            loadingText.classList.remove('hidden');
+            catImage.classList.add('hidden');
+
+            fetch('https://api.thecatapi.com/v1/images/search')
+                .then(response => response.json())
+                .then(data => {
+                    const catUrl = data[0].url;
+                    catImage.src = catUrl;
+                    loadingText.classList.add('hidden');
+                    catImage.classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('获取猫咪图片失败:', error);
+                    loadingText.textContent = '召唤失败，请重试！';
+                    setTimeout(() => {
+                        loadingText.classList.add('hidden');
+                    }, 2000);
+                });
+        }
+
+        catButton.addEventListener('click', summonCat);
+
+        // 页面加载时自动召唤一只猫咪
+        window.addEventListener('load', summonCat);
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的第一个网页</title>
+    <style>
+        nav {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 0;
+        }
+
+        nav ul {
+            display: flex;
+            justify-content: space-around;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        nav a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 照片画廊样式 */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .photo-box {
+            width: 200px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .photo-box:nth-child(1) {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        }
+
+        .photo-box:nth-child(2) {
+            background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        }
+
+        .photo-box:nth-child(3) {
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+        }
+
+        .photo-box:nth-child(4) {
+            background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+        }
+
+        .photo-box:nth-child(5) {
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+        }
+
+        .photo-box:nth-child(6) {
+            background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+        }
+
+        .photo-box:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav>
+        <ul>
+            <li><a href="#home">首页</a></li>
+            <li><a href="#products">产品</a></li>
+            <li><a href="#about">关于我们</a></li>
+            <li><a href="#contact">联系我们</a></li>
+        </ul>
+    </nav>
+
+    <!-- 照片画廊 -->
+    <div class="gallery">
+        <div class="photo-box">照片1</div>
+        <div class="photo-box">照片2</div>
+        <div class="photo-box">照片3</div>
+        <div class="photo-box">照片4</div>
+        <div class="photo-box">照片5</div>
+        <div class="photo-box">照片6</div>
+    </div>
+
+</body>
+</html>

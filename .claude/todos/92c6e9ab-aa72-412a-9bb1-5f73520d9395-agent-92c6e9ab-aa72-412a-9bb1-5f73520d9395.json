@@ -1,0 +1,27 @@
+[
+  {
+    "content": "创建.gitignore文件排除系统文件",
+    "status": "completed",
+    "activeForm": "创建.gitignore文件"
+  },
+  {
+    "content": "配置GitHub远程仓库",
+    "status": "completed",
+    "activeForm": "配置远程仓库"
+  },
+  {
+    "content": "添加项目文件到暂存区",
+    "status": "in_progress",
+    "activeForm": "添加文件"
+  },
+  {
+    "content": "提交代码",
+    "status": "pending",
+    "activeForm": "提交代码"
+  },
+  {
+    "content": "推送到GitHub",
+    "status": "pending",
+    "activeForm": "推送到GitHub"
+  }
+]

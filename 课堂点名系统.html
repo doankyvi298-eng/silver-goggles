@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>课堂点名系统</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .roll-call-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .selected-student {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 3px dashed #ddd;
+            transition: all 0.3s ease;
+        }
+
+        .selected-student.rolling {
+            animation: roll 0.1s infinite;
+            background: #fff3cd;
+            border-color: #ffc107;
+            color: #856404;
+        }
+
+        .selected-student.final {
+            background: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+            animation: pulse 0.6s ease-in-out;
+        }
+
+        @keyframes roll {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+
+        .btn-primary { background: #007bff; }
+        .btn-success { background: #28a745; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-danger { background: #dc3545; }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .student-management {
+            margin-top: 40px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+        }
+
+        .student-management h3 {
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .add-student {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 120px;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: end;
+        }
+
+        .add-student input, .add-student select {
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .add-student input:focus, .add-student select:focus {
+            border-color: #007bff;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-size: 12px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .student-table {
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .student-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .student-table th {
+            background: #007bff;
+            color: white;
+            padding: 12px 8px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .student-table td {
+            padding: 10px 8px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .student-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .table-actions button {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .delete-table-btn {
+            background: #dc3545;
+            color: white;
+        }
+
+        .export-controls {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .export-controls .btn {
+            margin: 0 10px;
+        }
+
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(23,162,184,0.4);
+        }
+
+        @media (max-width: 768px) {
+            .add-student {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .student-table {
+                font-size: 12px;
+            }
+
+            .student-table th, .student-table td {
+                padding: 8px 4px;
+            }
+        }
+
+        .student-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .student-item {
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .student-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .student-item.called {
+            background: #e9ecef;
+            opacity: 0.6;
+        }
+
+        .student-name {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+
+            .selected-student {
+                font-size: 36px;
+                min-height: 60px;
+            }
+
+            .controls {
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                min-width: 100px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 课堂点名系统</h1>
+            <p>让课堂互动更有趣</p>
+        </div>
+
+        <div class="main-content">
+            <div class="roll-call-display">
+                <div class="selected-student" id="selectedStudent">
+                    点击开始点名
+                </div>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="totalCount">0</div>
+                        <div class="stat-label">总人数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="calledCount">0</div>
+                        <div class="stat-label">已点名</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="remainingCount">0</div>
+                        <div class="stat-label">未点名</div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" id="startBtn" onclick="startRollCall()">
+                        🎲 开始点名
+                    </button>
+                    <button class="btn btn-success" id="markPresentBtn" onclick="markAsPresent()" style="display: none;">
+                        ✅ 标记到场
+                    </button>
+                    <button class="btn btn-warning" onclick="resetRollCall()">
+                        🔄 重置状态
+                    </button>
+                </div>
+            </div>
+
+            <div class="student-management">
+                <h3>👥 学生管理</h3>
+
+                <div class="add-student">
+                    <div class="form-group">
+                        <label>学生姓名</label>
+                        <input type="text" id="studentNameInput" placeholder="请输入学生姓名">
+                    </div>
+                    <div class="form-group">
+                        <label>年级</label>
+                        <select id="gradeSelect">
+                            <option value="">请选择年级</option>
+                            <option value="初一">初一</option>
+                            <option value="初二">初二</option>
+                            <option value="初三">初三</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>班级</label>
+                        <select id="classSelect">
+                            <option value="">请选择班级</option>
+                            <option value="一班">一班</option>
+                            <option value="二班">二班</option>
+                            <option value="三班">三班</option>
+                            <option value="四班">四班</option>
+                            <option value="五班">五班</option>
+                            <option value="六班">六班</option>
+                            <option value="七班">七班</option>
+                            <option value="八班">八班</option>
+                            <option value="九班">九班</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select id="genderSelect">
+                            <option value="">请选择性别</option>
+                            <option value="男">男</option>
+                            <option value="女">女</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>电话</label>
+                        <input type="tel" id="phoneInput" placeholder="请输入电话号码">
+                    </div>
+                    <div class="form-group">
+                        <label>宿舍楼</label>
+                        <select id="dormSelect">
+                            <option value="">请选择宿舍楼</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-success" onclick="addStudentWithInfo()">添加学生</button>
+                </div>
+
+                <div class="export-controls">
+                    <button class="btn btn-info" onclick="exportToExcel()">📊 导出Excel表格</button>
+                    <button class="btn btn-warning" onclick="importFromExcel()">📋 导入Excel数据</button>
+                </div>
+
+                <div class="student-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>姓名</th>
+                                <th>年级</th>
+                                <th>班级</th>
+                                <th>性别</th>
+                                <th>电话</th>
+                                <th>宿舍楼</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="student-list" id="studentList" style="margin-top: 20px;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let students = [];
+        let studentDetails = []; // 存储学生详细信息
+        let calledStudents = [];
+        let isRolling = false;
+        let rollInterval;
+        let currentSelectedStudent = null;
+
+        // 初始化默认学生名单
+        const defaultStudents = [
+            '小明', '小红', '小李', '小王', '小张', '小陈', '小刘', '小黄',
+            '小周', '小吴', '小林', '小何', '小高', '小郭', '小马', '小朱'
+        ];
+
+        // 生成宿舍楼选项
+        function generateDormOptions() {
+            const dormSelect = document.getElementById('dormSelect');
+            const defaultOption = '<option value="">请选择宿舍楼</option>';
+            let options = defaultOption;
+
+            for (let building = 1; building <= 6; building++) {
+                for (let floor = 1; floor <= 6; floor++) {
+                    for (let room = 1; room <= 6; room++) {
+                        const dormNumber = `${building}栋${building}-${floor}-${room}`;
+                        options += `<option value="${dormNumber}">${dormNumber}</option>`;
+                    }
+                }
+            }
+
+            dormSelect.innerHTML = options;
+        }
+
+        // 页面加载时初始化
+        window.onload = function() {
+            generateDormOptions();
+            loadStudents();
+            if (students.length === 0) {
+                students = [...defaultStudents];
+                // 为默认学生创建基本信息
+                studentDetails = defaultStudents.map(name => ({
+                    name: name,
+                    grade: '',
+                    class: '',
+                    gender: '',
+                    phone: '',
+                    dorm: ''
+                }));
+                saveStudents();
+            }
+            updateDisplay();
+        };
+
+        // 添加带详细信息的学生
+        function addStudentWithInfo() {
+            const name = document.getElementById('studentNameInput').value.trim();
+            const grade = document.getElementById('gradeSelect').value;
+            const studentClass = document.getElementById('classSelect').value;
+            const gender = document.getElementById('genderSelect').value;
+            const phone = document.getElementById('phoneInput').value.trim();
+            const dorm = document.getElementById('dormSelect').value;
+
+            if (name === '') {
+                alert('请输入学生姓名');
+                return;
+            }
+
+            if (students.includes(name)) {
+                alert('该学生已存在');
+                return;
+            }
+
+            // 添加到学生列表
+            students.push(name);
+
+            // 添加详细信息
+            studentDetails.push({
+                name: name,
+                grade: grade,
+                class: studentClass,
+                gender: gender,
+                phone: phone,
+                dorm: dorm
+            });
+
+            // 清空表单
+            document.getElementById('studentNameInput').value = '';
+            document.getElementById('gradeSelect').value = '';
+            document.getElementById('classSelect').value = '';
+            document.getElementById('genderSelect').value = '';
+            document.getElementById('phoneInput').value = '';
+            document.getElementById('dormSelect').value = '';
+
+            saveStudents();
+            updateDisplay();
+        }
+
+        // 添加学生（简单版本，兼容旧功能）
+        function addStudent() {
+            const input = document.getElementById('studentNameInput');
+            const name = input.value.trim();
+
+            if (name === '') {
+                alert('请输入学生姓名');
+                return;
+            }
+
+            if (students.includes(name)) {
+                alert('该学生已存在');
+                return;
+            }
+
+            students.push(name);
+
+            // 添加基本信息
+            studentDetails.push({
+                name: name,
+                grade: '',
+                class: '',
+                gender: '',
+                phone: '',
+                dorm: ''
+            });
+
+            input.value = '';
+            saveStudents();
+            updateDisplay();
+        }
+
+        // 删除学生
+        function removeStudent(name) {
+            if (confirm(`确定要删除 ${name} 吗？`)) {
+                students = students.filter(student => student !== name);
+                studentDetails = studentDetails.filter(detail => detail.name !== name);
+                calledStudents = calledStudents.filter(student => student !== name);
+                saveStudents();
+                updateDisplay();
+            }
+        }
+
+        // 编辑学生信息
+        function editStudent(name) {
+            const student = studentDetails.find(s => s.name === name);
+            if (!student) return;
+
+            document.getElementById('studentNameInput').value = student.name;
+            document.getElementById('gradeSelect').value = student.grade;
+            document.getElementById('classSelect').value = student.class;
+            document.getElementById('genderSelect').value = student.gender;
+            document.getElementById('phoneInput').value = student.phone;
+            document.getElementById('dormSelect').value = student.dorm;
+
+            // 临时删除学生，等待重新添加
+            removeStudent(name);
+        }
+
+        // 开始点名
+        function startRollCall() {
+            if (students.length === 0) {
+                alert('请先添加学生');
+                return;
+            }
+
+            const uncalledStudents = students.filter(student => !calledStudents.includes(student));
+            if (uncalledStudents.length === 0) {
+                alert('所有学生都已点名完毕！');
+                return;
+            }
+
+            if (isRolling) return;
+
+            isRolling = true;
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('markPresentBtn').style.display = 'none';
+
+            const display = document.getElementById('selectedStudent');
+            display.className = 'selected-student rolling';
+
+            let rollCount = 0;
+            const maxRolls = 20 + Math.floor(Math.random() * 20);
+
+            rollInterval = setInterval(() => {
+                const randomStudent = uncalledStudents[Math.floor(Math.random() * uncalledStudents.length)];
+                display.textContent = randomStudent;
+                rollCount++;
+
+                if (rollCount >= maxRolls) {
+                    stopRollCall();
+                }
+            }, 100);
+        }
+
+        // 停止点名
+        function stopRollCall() {
+            clearInterval(rollInterval);
+            isRolling = false;
+
+            const display = document.getElementById('selectedStudent');
+            display.className = 'selected-student final';
+            currentSelectedStudent = display.textContent;
+
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('markPresentBtn').style.display = 'inline-block';
+
+            // 3秒后恢复正常状态
+            setTimeout(() => {
+                display.className = 'selected-student';
+            }, 3000);
+        }
+
+        // 标记学生到场
+        function markAsPresent() {
+            if (currentSelectedStudent && !calledStudents.includes(currentSelectedStudent)) {
+                calledStudents.push(currentSelectedStudent);
+                updateDisplay();
+                document.getElementById('selectedStudent').textContent = '✅ 已标记到场';
+                document.getElementById('markPresentBtn').style.display = 'none';
+                currentSelectedStudent = null;
+
+                // 检查是否所有学生都已点名
+                if (calledStudents.length === students.length) {
+                    setTimeout(() => {
+                        alert('🎉 恭喜！所有学生都已点名完毕！');
+                    }, 1000);
+                }
+            }
+        }
+
+        // 重置点名状态
+        function resetRollCall() {
+            if (confirm('确定要重置所有点名状态吗？')) {
+                calledStudents = [];
+                currentSelectedStudent = null;
+                document.getElementById('selectedStudent').textContent = '点击开始点名';
+                document.getElementById('selectedStudent').className = 'selected-student';
+                document.getElementById('markPresentBtn').style.display = 'none';
+                updateDisplay();
+            }
+        }
+
+        // 更新显示
+        function updateDisplay() {
+            updateStudentTable();
+            updateStudentList();
+            updateStats();
+        }
+
+        // 更新学生表格显示
+        function updateStudentTable() {
+            const tableBody = document.getElementById('studentTableBody');
+            tableBody.innerHTML = '';
+
+            studentDetails.forEach(student => {
+                const row = document.createElement('tr');
+                const isCalled = calledStudents.includes(student.name);
+
+                row.innerHTML = `
+                    <td>${student.name}</td>
+                    <td>${student.grade || '-'}</td>
+                    <td>${student.class || '-'}</td>
+                    <td>${student.gender || '-'}</td>
+                    <td>${student.phone || '-'}</td>
+                    <td>${student.dorm || '-'}</td>
+                    <td>${isCalled ? '✅ 已到场' : '⏸️ 未点名'}</td>
+                    <td class="table-actions">
+                        <button class="edit-btn" onclick="editStudent('${student.name}')" title="编辑">✏️</button>
+                        <button class="delete-table-btn" onclick="removeStudent('${student.name}')" title="删除">🗑️</button>
+                    </td>
+                `;
+
+                if (isCalled) {
+                    row.style.opacity = '0.6';
+                    row.style.background = '#f8f9fa';
+                }
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // 更新学生列表显示（保持原有功能）
+        function updateStudentList() {
+            const listContainer = document.getElementById('studentList');
+            listContainer.innerHTML = '<h4 style="text-align: center; margin-bottom: 15px; color: #666;">快速点名列表</h4>';
+
+            students.forEach(student => {
+                const studentItem = document.createElement('div');
+                studentItem.className = `student-item ${calledStudents.includes(student) ? 'called' : ''}`;
+
+                studentItem.innerHTML = `
+                    <span class="student-name">${student}${calledStudents.includes(student) ? ' ✓' : ''}</span>
+                    <button class="delete-btn" onclick="removeStudent('${student}')" title="删除">×</button>
+                `;
+
+                listContainer.appendChild(studentItem);
+            });
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('totalCount').textContent = students.length;
+            document.getElementById('calledCount').textContent = calledStudents.length;
+            document.getElementById('remainingCount').textContent = students.length - calledStudents.length;
+        }
+
+        // 保存学生数据到本地存储
+        function saveStudents() {
+            localStorage.setItem('classroom_students', JSON.stringify(students));
+            localStorage.setItem('classroom_student_details', JSON.stringify(studentDetails));
+            localStorage.setItem('classroom_called', JSON.stringify(calledStudents));
+        }
+
+        // 从本地存储加载学生数据
+        function loadStudents() {
+            const savedStudents = localStorage.getItem('classroom_students');
+            const savedDetails = localStorage.getItem('classroom_student_details');
+            const savedCalled = localStorage.getItem('classroom_called');
+
+            if (savedStudents) {
+                students = JSON.parse(savedStudents);
+            }
+
+            if (savedDetails) {
+                studentDetails = JSON.parse(savedDetails);
+            }
+
+            if (savedCalled) {
+                calledStudents = JSON.parse(savedCalled);
+            }
+        }
+
+        // 导入学生名单
+        function importStudents() {
+            const input = prompt('请输入学生名单，每个姓名用逗号分隔：');
+            if (input) {
+                const names = input.split(',').map(name => name.trim()).filter(name => name);
+                const newStudents = names.filter(name => !students.includes(name));
+
+                if (newStudents.length > 0) {
+                    students.push(...newStudents);
+                    // 为新学生创建基本信息
+                    newStudents.forEach(name => {
+                        studentDetails.push({
+                            name: name,
+                            grade: '',
+                            class: '',
+                            gender: '',
+                            phone: '',
+                            dorm: ''
+                        });
+                    });
+                    saveStudents();
+                    updateDisplay();
+                    alert(`成功添加 ${newStudents.length} 名学生`);
+                } else {
+                    alert('没有新的学生需要添加');
+                }
+            }
+        }
+
+        // 导出到Excel
+        function exportToExcel() {
+            if (studentDetails.length === 0) {
+                alert('没有学生数据可以导出');
+                return;
+            }
+
+            // 创建工作簿
+            const wb = XLSX.utils.book_new();
+
+            // 准备数据
+            const data = studentDetails.map(student => ({
+                '姓名': student.name,
+                '年级': student.grade || '',
+                '班级': student.class || '',
+                '性别': student.gender || '',
+                '电话': student.phone || '',
+                '宿舍楼': student.dorm || '',
+                '点名状态': calledStudents.includes(student.name) ? '已到场' : '未点名'
+            }));
+
+            // 创建工作表
+            const ws = XLSX.utils.json_to_sheet(data);
+
+            // 设置列宽
+            const colWidths = [
+                { wch: 12 }, // 姓名
+                { wch: 8 },  // 年级
+                { wch: 8 },  // 班级
+                { wch: 6 },  // 性别
+                { wch: 15 }, // 电话
+                { wch: 15 }, // 宿舍楼
+                { wch: 10 }  // 点名状态
+            ];
+            ws['!cols'] = colWidths;
+
+            // 添加工作表到工作簿
+            XLSX.utils.book_append_sheet(wb, ws, '学生信息统计');
+
+            // 生成文件名
+            const now = new Date();
+            const dateStr = now.getFullYear() + '-' +
+                          String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                          String(now.getDate()).padStart(2, '0');
+            const timeStr = String(now.getHours()).padStart(2, '0') + '-' +
+                          String(now.getMinutes()).padStart(2, '0');
+            const fileName = `学生信息统计_${dateStr}_${timeStr}.xlsx`;
+
+            // 导出文件
+            XLSX.writeFile(wb, fileName);
+
+            alert(`Excel文件已导出：${fileName}`);
+        }
+
+        // 从Excel导入数据
+        function importFromExcel() {
+            // 创建文件输入元素
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx,.xls';
+            input.style.display = 'none';
+
+            input.onchange = function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = new Uint8Array(e.target.result);
+                        const workbook = XLSX.read(data, { type: 'array' });
+
+                        // 读取第一个工作表
+                        const sheetName = workbook.SheetNames[0];
+                        const worksheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+                        let imported = 0;
+                        let skipped = 0;
+
+                        jsonData.forEach(row => {
+                            const name = row['姓名'] || row['name'] || '';
+                            if (name && !students.includes(name)) {
+                                students.push(name);
+                                studentDetails.push({
+                                    name: name,
+                                    grade: row['年级'] || row['grade'] || '',
+                                    class: row['班级'] || row['class'] || '',
+                                    gender: row['性别'] || row['gender'] || '',
+                                    phone: row['电话'] || row['phone'] || '',
+                                    dorm: row['宿舍楼'] || row['dorm'] || ''
+                                });
+                                imported++;
+                            } else {
+                                skipped++;
+                            }
+                        });
+
+                        saveStudents();
+                        updateDisplay();
+
+                        alert(`导入完成！\n新增学生：${imported} 人\n跳过重复：${skipped} 人`);
+                    } catch (error) {
+                        alert('文件读取失败，请检查Excel文件格式是否正确');
+                        console.error('导入错误:', error);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            };
+
+            document.body.appendChild(input);
+            input.click();
+            document.body.removeChild(input);
+        }
+
+        // 清空所有学生
+        function clearAllStudents() {
+            if (confirm('确定要清空所有学生吗？此操作不可恢复！')) {
+                students = [];
+                studentDetails = [];
+                calledStudents = [];
+                saveStudents();
+                updateDisplay();
+                document.getElementById('selectedStudent').textContent = '点击开始点名';
+            }
+        }
+    </script>
+</body>
+</html>

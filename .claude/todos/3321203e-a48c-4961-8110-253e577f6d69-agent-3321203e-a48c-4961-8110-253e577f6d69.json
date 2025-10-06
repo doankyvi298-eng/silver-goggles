@@ -1,0 +1,32 @@
+[
+  {
+    "content": "Identify the correct codebase location",
+    "status": "in_progress",
+    "activeForm": "Identifying the correct codebase location"
+  },
+  {
+    "content": "Read configuration files (package.json, README, etc.)",
+    "status": "pending",
+    "activeForm": "Reading configuration files"
+  },
+  {
+    "content": "Understand build and development commands",
+    "status": "pending",
+    "activeForm": "Understanding build and development commands"
+  },
+  {
+    "content": "Analyze code architecture and key patterns",
+    "status": "pending",
+    "activeForm": "Analyzing code architecture and key patterns"
+  },
+  {
+    "content": "Check for existing CLAUDE.md or similar files",
+    "status": "pending",
+    "activeForm": "Checking for existing CLAUDE.md or similar files"
+  },
+  {
+    "content": "Create comprehensive CLAUDE.md file",
+    "status": "pending",
+    "activeForm": "Creating comprehensive CLAUDE.md file"
+  }
+]

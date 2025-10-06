@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黄金挖矿游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #87CEEB 0%, #98FB98 50%, #8B4513 100%);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: linear-gradient(to bottom, #87CEEB 0%, #87CEEB 20%, #8B4513 20%);
+        }
+
+        .header {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 18px;
+            z-index: 100;
+        }
+
+        .score {
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .miner {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: #8B4513;
+            border-radius: 50%;
+            z-index: 10;
+        }
+
+        .miner::before {
+            content: "⛏️";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 30px;
+        }
+
+        .hook-line {
+            position: absolute;
+            top: 110px;
+            left: 50%;
+            width: 3px;
+            background: #FFD700;
+            transform-origin: top center;
+            z-index: 5;
+        }
+
+        .hook {
+            position: absolute;
+            bottom: -15px;
+            left: -7px;
+            width: 17px;
+            height: 15px;
+            background: #C0C0C0;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+
+        .hook::after {
+            content: "🪝";
+            position: absolute;
+            top: -5px;
+            left: -2px;
+            font-size: 16px;
+        }
+
+        .underground {
+            position: absolute;
+            top: 150px;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 150px);
+            background: linear-gradient(45deg, #8B4513 25%, #A0522D 25%, #A0522D 50%, #8B4513 50%, #8B4513 75%, #A0522D 75%);
+            background-size: 20px 20px;
+        }
+
+        .treasure {
+            position: absolute;
+            cursor: pointer;
+            z-index: 3;
+        }
+
+        .gold {
+            width: 30px;
+            height: 30px;
+        }
+
+        .gold::before {
+            content: "🏆";
+            font-size: 25px;
+        }
+
+        .diamond {
+            width: 25px;
+            height: 25px;
+        }
+
+        .diamond::before {
+            content: "💎";
+            font-size: 20px;
+        }
+
+        .rock {
+            width: 40px;
+            height: 40px;
+        }
+
+        .rock::before {
+            content: "🪨";
+            font-size: 35px;
+        }
+
+        .big-gold {
+            width: 50px;
+            height: 50px;
+        }
+
+        .big-gold::before {
+            content: "👑";
+            font-size: 45px;
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+
+        .level-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 200;
+            display: none;
+        }
+
+        .restart-btn {
+            background: #FFD700;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .power-bar {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            width: 20px;
+            height: 200px;
+            background: rgba(0,0,0,0.3);
+            border: 2px solid white;
+            border-radius: 10px;
+            z-index: 100;
+        }
+
+        .power-fill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #FF0000, #FFFF00, #00FF00);
+            border-radius: 8px;
+            transition: height 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <div class="header">
+            <div class="score">
+                <div>分数: <span id="score">0</span></div>
+                <div>目标: <span id="target">100</span></div>
+            </div>
+        </div>
+
+        <div class="level-info">
+            <div>关卡: <span id="level">1</span></div>
+            <div>时间: <span id="time">60</span>s</div>
+        </div>
+
+        <div class="power-bar">
+            <div class="power-fill" id="powerFill"></div>
+        </div>
+
+        <div class="miner" id="miner"></div>
+        <div class="hook-line" id="hookLine">
+            <div class="hook" id="hook"></div>
+        </div>
+
+        <div class="underground" id="underground"></div>
+
+        <div class="controls">
+            <div>点击屏幕发射挖矿爪</div>
+            <div>抓取黄金和钻石获得分数</div>
+        </div>
+
+        <div class="game-over" id="gameOver">
+            <h2>游戏结束</h2>
+            <p>最终分数: <span id="finalScore">0</span></p>
+            <button class="restart-btn" onclick="restartGame()">重新开始</button>
+        </div>
+    </div>
+
+    <script>
+        class GoldMiningGame {
+            constructor() {
+                this.score = 0;
+                this.level = 1;
+                this.target = 100;
+                this.time = 60;
+                this.gameRunning = true;
+                this.hookExtending = false;
+                this.hookRetracting = false;
+                this.hookAngle = 0;
+                this.hookLength = 0;
+                this.maxHookLength = 400;
+                this.hookSpeed = 3;
+                this.rotationSpeed = 2;
+                this.treasures = [];
+                this.caughtTreasure = null;
+                this.power = 0;
+                this.powerDirection = 1;
+
+                this.hookLine = document.getElementById('hookLine');
+                this.hook = document.getElementById('hook');
+                this.underground = document.getElementById('underground');
+                this.scoreElement = document.getElementById('score');
+                this.targetElement = document.getElementById('target');
+                this.levelElement = document.getElementById('level');
+                this.timeElement = document.getElementById('time');
+                this.powerFill = document.getElementById('powerFill');
+                this.gameOver = document.getElementById('gameOver');
+                this.finalScore = document.getElementById('finalScore');
+
+                this.init();
+            }
+
+            init() {
+                this.generateTreasures();
+                this.startTimer();
+                this.gameLoop();
+                this.bindEvents();
+            }
+
+            bindEvents() {
+                document.addEventListener('click', () => {
+                    if (this.gameRunning && !this.hookExtending && !this.hookRetracting) {
+                        this.launchHook();
+                    }
+                });
+
+                document.addEventListener('keydown', (e) => {
+                    if (e.code === 'Space' && this.gameRunning && !this.hookExtending && !this.hookRetracting) {
+                        e.preventDefault();
+                        this.launchHook();
+                    }
+                });
+            }
+
+            generateTreasures() {
+                this.treasures = [];
+                const treasureTypes = [
+                    { class: 'gold', value: 50, weight: 1 },
+                    { class: 'diamond', value: 100, weight: 0.5 },
+                    { class: 'rock', value: 10, weight: 3 },
+                    { class: 'big-gold', value: 200, weight: 5 }
+                ];
+
+                const numTreasures = 15 + this.level * 2;
+
+                for (let i = 0; i < numTreasures; i++) {
+                    const type = treasureTypes[Math.floor(Math.random() * treasureTypes.length)];
+                    const treasure = {
+                        x: Math.random() * (window.innerWidth - 60) + 30,
+                        y: Math.random() * 300 + 200,
+                        type: type.class,
+                        value: type.value,
+                        weight: type.weight,
+                        element: null
+                    };
+
+                    treasure.element = this.createTreasureElement(treasure);
+                    this.treasures.push(treasure);
+                }
+            }
+
+            createTreasureElement(treasure) {
+                const element = document.createElement('div');
+                element.className = `treasure ${treasure.type}`;
+                element.style.left = treasure.x + 'px';
+                element.style.top = treasure.y + 'px';
+                this.underground.appendChild(element);
+                return element;
+            }
+
+            launchHook() {
+                this.hookExtending = true;
+                this.hookLength = 0;
+                this.updateHookPosition();
+            }
+
+            updateHookPosition() {
+                const x = Math.sin(this.hookAngle * Math.PI / 180) * this.hookLength;
+                const y = this.hookLength;
+
+                this.hookLine.style.height = this.hookLength + 'px';
+                this.hookLine.style.transform = `translateX(-50%) rotate(${this.hookAngle}deg)`;
+
+                return { x: window.innerWidth / 2 + x, y: 110 + y };
+            }
+
+            checkCollision(hookPos) {
+                for (let treasure of this.treasures) {
+                    if (!treasure.element) continue;
+
+                    const treasureRect = treasure.element.getBoundingClientRect();
+                    const distance = Math.sqrt(
+                        Math.pow(hookPos.x - (treasureRect.left + treasureRect.width / 2), 2) +
+                        Math.pow(hookPos.y - (treasureRect.top + treasureRect.height / 2), 2)
+                    );
+
+                    if (distance < 30) {
+                        this.caughtTreasure = treasure;
+                        treasure.element.style.zIndex = '20';
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            updatePower() {
+                this.power += this.powerDirection * 2;
+                if (this.power >= 100) {
+                    this.power = 100;
+                    this.powerDirection = -1;
+                } else if (this.power <= 0) {
+                    this.power = 0;
+                    this.powerDirection = 1;
+                }
+                this.powerFill.style.height = this.power + '%';
+            }
+
+            gameLoop() {
+                if (!this.gameRunning) return;
+
+                if (!this.hookExtending && !this.hookRetracting) {
+                    this.hookAngle += this.rotationSpeed;
+                    if (this.hookAngle > 75) this.rotationSpeed = -2;
+                    if (this.hookAngle < -75) this.rotationSpeed = 2;
+                    this.updateHookPosition();
+                    this.updatePower();
+                }
+
+                if (this.hookExtending) {
+                    this.hookLength += this.hookSpeed;
+                    const hookPos = this.updateHookPosition();
+
+                    if (this.checkCollision(hookPos)) {
+                        this.hookExtending = false;
+                        this.hookRetracting = true;
+                    } else if (this.hookLength >= this.maxHookLength || hookPos.y >= window.innerHeight - 50) {
+                        this.hookExtending = false;
+                        this.hookRetracting = true;
+                    }
+                }
+
+                if (this.hookRetracting) {
+                    const retractSpeed = this.caughtTreasure ?
+                        Math.max(1, this.hookSpeed - this.caughtTreasure.weight * 0.5) :
+                        this.hookSpeed * 1.5;
+
+                    this.hookLength -= retractSpeed;
+
+                    if (this.caughtTreasure) {
+                        const hookPos = this.updateHookPosition();
+                        this.caughtTreasure.element.style.left = (hookPos.x - 15) + 'px';
+                        this.caughtTreasure.element.style.top = (hookPos.y - 15) + 'px';
+                    }
+
+                    if (this.hookLength <= 0) {
+                        this.hookLength = 0;
+                        this.hookRetracting = false;
+
+                        if (this.caughtTreasure) {
+                            this.collectTreasure(this.caughtTreasure);
+                            this.caughtTreasure = null;
+                        }
+
+                        this.updateHookPosition();
+                    } else {
+                        this.updateHookPosition();
+                    }
+                }
+
+                requestAnimationFrame(() => this.gameLoop());
+            }
+
+            collectTreasure(treasure) {
+                this.score += treasure.value;
+                this.scoreElement.textContent = this.score;
+
+                treasure.element.remove();
+                const index = this.treasures.indexOf(treasure);
+                if (index > -1) {
+                    this.treasures.splice(index, 1);
+                }
+
+                if (this.score >= this.target) {
+                    this.nextLevel();
+                }
+            }
+
+            nextLevel() {
+                this.level++;
+                this.target = this.level * 150;
+                this.time = 60;
+                this.levelElement.textContent = this.level;
+                this.targetElement.textContent = this.target;
+                this.generateTreasures();
+            }
+
+            startTimer() {
+                this.timerInterval = setInterval(() => {
+                    this.time--;
+                    this.timeElement.textContent = this.time;
+
+                    if (this.time <= 0) {
+                        this.endGame();
+                    }
+                }, 1000);
+            }
+
+            endGame() {
+                this.gameRunning = false;
+                clearInterval(this.timerInterval);
+                this.finalScore.textContent = this.score;
+                this.gameOver.style.display = 'block';
+            }
+
+            restart() {
+                this.score = 0;
+                this.level = 1;
+                this.target = 100;
+                this.time = 60;
+                this.gameRunning = true;
+                this.hookExtending = false;
+                this.hookRetracting = false;
+                this.hookAngle = 0;
+                this.hookLength = 0;
+                this.caughtTreasure = null;
+                this.power = 0;
+                this.powerDirection = 1;
+
+                this.scoreElement.textContent = this.score;
+                this.targetElement.textContent = this.target;
+                this.levelElement.textContent = this.level;
+                this.timeElement.textContent = this.time;
+                this.gameOver.style.display = 'none';
+
+                this.treasures.forEach(treasure => {
+                    if (treasure.element) {
+                        treasure.element.remove();
+                    }
+                });
+
+                this.generateTreasures();
+                this.startTimer();
+                this.gameLoop();
+            }
+        }
+
+        let game;
+
+        window.addEventListener('load', () => {
+            game = new GoldMiningGame();
+        });
+
+        function restartGame() {
+            game.restart();
+        }
+    </script>
+</body>
+</html>

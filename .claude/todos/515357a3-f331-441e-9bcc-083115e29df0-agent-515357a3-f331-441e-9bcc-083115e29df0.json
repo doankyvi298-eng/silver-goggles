@@ -1,0 +1,27 @@
+[
+  {
+    "content": "Create HTML structure for the gold mining game",
+    "status": "in_progress",
+    "activeForm": "Creating HTML structure for the gold mining game"
+  },
+  {
+    "content": "Implement CSS styling for game interface and graphics",
+    "status": "pending",
+    "activeForm": "Implementing CSS styling for game interface and graphics"
+  },
+  {
+    "content": "Add JavaScript game logic for mining mechanics",
+    "status": "pending",
+    "activeForm": "Adding JavaScript game logic for mining mechanics"
+  },
+  {
+    "content": "Implement scoring and game progression system",
+    "status": "pending",
+    "activeForm": "Implementing scoring and game progression system"
+  },
+  {
+    "content": "Add sound effects and visual feedback",
+    "status": "pending",
+    "activeForm": "Adding sound effects and visual feedback"
+  }
+]

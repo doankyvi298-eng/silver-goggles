@@ -1,0 +1,32 @@
+[
+  {
+    "content": "Create HTML structure for Chinese name generator",
+    "status": "in_progress",
+    "activeForm": "Creating HTML structure for Chinese name generator"
+  },
+  {
+    "content": "Implement modern UI design and responsive layout",
+    "status": "pending",
+    "activeForm": "Implementing modern UI design and responsive layout"
+  },
+  {
+    "content": "Write name generation algorithms and logic",
+    "status": "pending",
+    "activeForm": "Writing name generation algorithms and logic"
+  },
+  {
+    "content": "Add traditional naming elements (五行, 笔画, etc.)",
+    "status": "pending",
+    "activeForm": "Adding traditional naming elements (五行, 笔画, etc.)"
+  },
+  {
+    "content": "Implement name meaning and scoring system",
+    "status": "pending",
+    "activeForm": "Implementing name meaning and scoring system"
+  },
+  {
+    "content": "Add favorites and export functionality",
+    "status": "pending",
+    "activeForm": "Adding favorites and export functionality"
+  }
+]

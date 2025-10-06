@@ -1,0 +1,39 @@
+# Windows系统文件
+NTUSER.DAT*
+ntuser.dat*
+ntuser.ini
+*.LOG1
+*.LOG2
+*.blf
+*.regtrans-ms
+
+# Windows用户目录
+AppData/
+Application Data/
+Cookies/
+Local Settings/
+NetHood/
+Recent/
+SendTo/
+Contacts/
+Downloads/
+Favorites/
+Links/
+Music/
+Saved Games/
+Searches/
+IntelGraphicsProfiles/
+「开始」菜单/
+
+# 配置和缓存
+.bash_history
+.cache/
+.docker/
+.gitconfig
+.matplotlib/
+.ufomiao/
+.vscode/
+.claude.json.backup
+
+# WPS相关
+WPSDrive/

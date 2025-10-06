@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>命运水晶球</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+            color: white;
+        }
+
+        .crystal-ball-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .magic-button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 20px 40px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+            margin-bottom: 30px;
+        }
+
+        .magic-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.6);
+        }
+
+        .magic-button:active {
+            transform: translateY(-1px) scale(1.02);
+        }
+
+        .answer-area {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 30px;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            margin-top: 20px;
+        }
+
+        .answer-text {
+            font-size: 1.3rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.6;
+            color: #fff;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .answer-text.show {
+            opacity: 1;
+        }
+
+        .crystal-ball {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .sparkles {
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0;
+            animation: sparkle 2s infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="crystal-ball-container">
+        <div class="crystal-ball">🔮</div>
+        <h1>命运水晶球</h1>
+
+        <button class="magic-button" onclick="tellAnswer()">告诉我答案！</button>
+
+        <div class="answer-area">
+            <div class="answer-text" id="answerText">点击按钮，让水晶球为你揭示命运...</div>
+        </div>
+    </div>
+
+    <script>
+        // 创建答案列表
+        const answers = [
+            "那必须的！",
+            "想都别想。",
+            "或许可以",
+            "建议换个问题。",
+            "天机不可泄露。",
+            "我觉得你在开玩笑！",
+            "水晶球正在缓冲中...请稍后再试",
+            "答案就在你心中，但不在我这里",
+            "哎呀，我的水晶球掉线了！",
+            "这个问题让我的CPU过热了",
+            "抱歉，我今天有点懒，不想回答",
+            "你猜猜看？反正我也不知道",
+            "问我老板去，我只是个打工球",
+            "emmm...让我想想...不，还是算了",
+            "我的魔法值不够了，明天再来吧"
+        ];
+
+        function tellAnswer() {
+            const answerElement = document.getElementById('answerText');
+            const button = document.querySelector('.magic-button');
+
+            // 添加按钮点击效果
+            button.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                button.style.transform = '';
+            }, 150);
+
+            // 隐藏当前答案
+            answerElement.classList.remove('show');
+
+            // 添加闪烁效果
+            createSparkles();
+
+            // 延迟显示新答案
+            setTimeout(() => {
+                const randomAnswer = answers[Math.floor(Math.random() * answers.length)];
+                answerElement.textContent = randomAnswer;
+                answerElement.classList.add('show');
+            }, 500);
+        }
+
+        function createSparkles() {
+            for (let i = 0; i < 5; i++) {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'sparkles';
+                sparkle.textContent = '✨';
+                sparkle.style.left = Math.random() * window.innerWidth + 'px';
+                sparkle.style.top = Math.random() * window.innerHeight + 'px';
+                document.body.appendChild(sparkle);
+
+                setTimeout(() => {
+                    sparkle.remove();
+                }, 2000);
+            }
+        }
+
+        // 页面加载时显示初始文本
+        window.onload = function() {
+            setTimeout(() => {
+                document.getElementById('answerText').classList.add('show');
+            }, 500);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>响应式网页布局</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* 整体容器 */
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航栏 */
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        nav a:hover {
+            background-color: #34495e;
+        }
+
+        /* 主要内容区 */
+        main {
+            flex: 1;
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* 文章区域 */
+        .article-section {
+            flex: 70;
+            background-color: #ecf0f1;
+            padding: 2rem;
+            border-radius: 8px;
+        }
+
+        .article-section h2 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .article-section p {
+            margin-bottom: 1rem;
+            text-align: justify;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            flex: 30;
+            background-color: #3498db;
+            color: white;
+            padding: 2rem;
+            border-radius: 8px;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+
+        /* 底部页脚 */
+        footer {
+            background-color: #34495e;
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: auto;
+        }
+
+        /* 响应式媒体查询 */
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+                padding: 0.5rem;
+            }
+
+            .article-section {
+                flex: none;
+                width: 100%;
+                margin-bottom: 1rem;
+                padding: 1.5rem;
+            }
+
+            .sidebar {
+                flex: none;
+                width: 100%;
+                padding: 1.5rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .article-section h2 {
+                font-size: 1.3rem;
+            }
+        }
+
+        /* 小屏幕优化 */
+        @media (max-width: 480px) {
+            .container {
+                padding: 0;
+            }
+
+            header {
+                padding: 0.8rem;
+            }
+
+            .article-section,
+            .sidebar {
+                padding: 1rem;
+            }
+
+            footer {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header>
+            <h1>我的响应式网站</h1>
+            <nav>
+                <ul>
+                    <li><a href="#home">首页</a></li>
+                    <li><a href="#about">关于</a></li>
+                    <li><a href="#services">服务</a></li>
+                    <li><a href="#contact">联系</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <!-- 主要内容区 -->
+        <main>
+            <!-- 文章区域 -->
+            <section class="article-section">
+                <h2>主要文章内容</h2>
+                <p>
+                    这里是主要的文章内容区域。在桌面端，这个区域占据70%的宽度，与右侧的侧边栏并排显示。
+                    当屏幕宽度小于或等于768px时，这个区域会占满100%的宽度，侧边栏会堆叠到下方。
+                </p>
+                <p>
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                </p>
+                <p>
+                    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+                <p>
+                    这个布局使用了Flexbox技术，确保了在不同设备上都能提供良好的用户体验。
+                    请调整浏览器窗口大小来测试响应式效果。
+                </p>
+            </section>
+
+            <!-- 侧边栏 -->
+            <aside class="sidebar">
+                <h3>侧边栏内容</h3>
+                <p>这里是侧边栏区域，在桌面端占30%宽度。</p>
+
+                <h3>快速链接</h3>
+                <ul>
+                    <li><a href="#">最新文章</a></li>
+                    <li><a href="#">热门话题</a></li>
+                    <li><a href="#">推荐阅读</a></li>
+                    <li><a href="#">归档文章</a></li>
+                </ul>
+
+                <h3>相关信息</h3>
+                <p>
+                    在移动设备上，这个侧边栏会自动移动到文章内容的下方，
+                    并占满100%的宽度，提供更好的移动浏览体验。
+                </p>
+            </aside>
+        </main>
+
+        <!-- 底部页脚 -->
+        <footer>
+            <p>&copy; 2025 我的响应式网站. 保留所有权利.</p>
+            <p>使用HTML和CSS Flexbox技术构建</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中文取名神器 - 智能起名助手</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', '微软雅黑', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .gender-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        .gender-option {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .gender-option.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .style-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .style-option {
+            text-align: center;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            font-size: 14px;
+        }
+
+        .style-option.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .result-item {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .result-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .name-display {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .name-meaning {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .name-score {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .score-text {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+
+            .title {
+                font-size: 24px;
+            }
+
+            .style-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🌟 中文取名神器</h1>
+            <p class="subtitle">基于传统文化的智能起名助手</p>
+        </div>
+
+        <form id="nameForm">
+            <div class="form-group">
+                <label class="form-label">姓氏</label>
+                <input type="text" id="surname" class="form-input" placeholder="请输入姓氏" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">性别</label>
+                <div class="gender-group">
+                    <div class="gender-option" data-gender="male">👦 男孩</div>
+                    <div class="gender-option" data-gender="female">👧 女孩</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">取名风格</label>
+                <div class="style-group">
+                    <div class="style-option active" data-style="classic">📚 诗词典雅</div>
+                    <div class="style-option" data-style="modern">🌟 现代时尚</div>
+                    <div class="style-option" data-style="nature">🌿 自然清新</div>
+                    <div class="style-option" data-style="lucky">🍀 吉祥如意</div>
+                </div>
+            </div>
+
+            <button type="submit" class="generate-btn">✨ 开始取名</button>
+        </form>
+
+        <div id="results" class="results hidden">
+            <div id="loading" class="loading hidden">正在为您精心挑选好名字...</div>
+            <div id="nameList"></div>
+        </div>
+    </div>
+
+    <script>
+        // 名字数据库
+        const nameDatabase = {
+            male: {
+                classic: [
+                    { name: "子轩", meaning: "轩昂气宇，君子风范，寓意高雅不凡" },
+                    { name: "承泽", meaning: "承继恩泽，福泽深厚，象征传承与恩惠" },
+                    { name: "明轩", meaning: "明智轩昂，聪慧出众，前程似锦" },
+                    { name: "文博", meaning: "文采渊博，学识深厚，才华横溢" },
+                    { name: "志远", meaning: "志向远大，胸怀壮志，前途无量" },
+                    { name: "思齐", meaning: "见贤思齐，品德高尚，追求卓越" }
+                ],
+                modern: [
+                    { name: "浩然", meaning: "浩然正气，坦荡磊落，正直善良" },
+                    { name: "宇航", meaning: "宇宙航行，志向高远，勇于探索" },
+                    { name: "锦程", meaning: "锦绣前程，前途光明，事业有成" },
+                    { name: "凯旋", meaning: "凯歌高奏，胜利归来，成功在望" },
+                    { name: "俊杰", meaning: "俊秀杰出，才华出众，人中龙凤" },
+                    { name: "炫宇", meaning: "光彩炫目，气宇轩昂，与众不同" }
+                ],
+                nature: [
+                    { name: "林风", meaning: "清风徐来，自然洒脱，心境开阔" },
+                    { name: "云峰", meaning: "高山流云，志存高远，胸怀宽广" },
+                    { name: "松涛", meaning: "松风阵阵，坚韧不拔，品格高洁" },
+                    { name: "江流", meaning: "江水长流，源源不断，生命力旺盛" },
+                    { name: "星河", meaning: "星河璀璨，前程似锦，光明无限" },
+                    { name: "晨曦", meaning: "晨光熹微，新的开始，充满希望" }
+                ],
+                lucky: [
+                    { name: "瑞祥", meaning: "祥瑞之兆，吉祥如意，福运亨通" },
+                    { name: "福安", meaning: "福泽安康，平安喜乐，幸福美满" },
+                    { name: "泽润", meaning: "恩泽润泽，福气满满，惠泽众生" },
+                    { name: "祥和", meaning: "祥光普照，和谐美满，家庭幸福" },
+                    { name: "康宁", meaning: "身体健康，生活安宁，无忧无虑" },
+                    { name: "兴旺", meaning: "兴旺发达，事业有成，财源广进" }
+                ]
+            },
+            female: {
+                classic: [
+                    { name: "雨婷", meaning: "雨润花婷，清新脱俗，如花似玉" },
+                    { name: "诗涵", meaning: "诗情画意，内涵丰富，才华横溢" },
+                    { name: "梦琪", meaning: "美梦成真，如玉如琪，珍贵美好" },
+                    { name: "雅欣", meaning: "优雅欣然，气质非凡，温文尔雅" },
+                    { name: "静怡", meaning: "宁静致远，怡然自得，内心平和" },
+                    { name: "婉清", meaning: "温婉清秀，淑女气质，美丽动人" }
+                ],
+                modern: [
+                    { name: "欣怡", meaning: "欣欣向荣，怡然自得，开朗活泼" },
+                    { name: "悦彤", meaning: "悦耳动听，彤云如霞，活力四射" },
+                    { name: "语嫣", meaning: "语笑嫣然，甜美可人，魅力十足" },
+                    { name: "晓萱", meaning: "晓露清新，萱草忘忧，青春靓丽" },
+                    { name: "思妤", meaning: "思维敏捷，聪慧如妤，智慧美貌" },
+                    { name: "芷若", meaning: "香草芷兰，清若止水，纯洁高雅" }
+                ],
+                nature: [
+                    { name: "若汐", meaning: "若水清澈，潮汐自然，灵动优美" },
+                    { name: "紫薇", meaning: "紫薇花开，高贵典雅，美丽芬芳" },
+                    { name: "荷韵", meaning: "莲荷清香，韵味悠长，纯洁美好" },
+                    { name: "柳絮", meaning: "柳絮飞舞，轻盈灵动，自由自在" },
+                    { name: "月华", meaning: "月光如华，皎洁美丽，温柔如水" },
+                    { name: "竹韵", meaning: "竹林清韵，高洁品格，坚韧不拔" }
+                ],
+                lucky: [
+                    { name: "瑞雪", meaning: "瑞雪纷飞，吉祥如意，纯洁美好" },
+                    { name: "福慧", meaning: "福泽深厚，慧心兰质，智慧美貌" },
+                    { name: "如意", meaning: "万事如意，心想事成，幸福美满" },
+                    { name: "安琪", meaning: "平安如琪，天使一般，善良美好" },
+                    { name: "泽恩", meaning: "恩泽如雨，感恩知足，福气满满" },
+                    { name: "祥云", meaning: "祥云缭绕，吉祥安康，前程似锦" }
+                ]
+            }
+        };
+
+        // DOM 元素
+        const form = document.getElementById('nameForm');
+        const surnameInput = document.getElementById('surname');
+        const genderOptions = document.querySelectorAll('.gender-option');
+        const styleOptions = document.querySelectorAll('.style-option');
+        const results = document.getElementById('results');
+        const loading = document.getElementById('loading');
+        const nameList = document.getElementById('nameList');
+
+        let selectedGender = '';
+        let selectedStyle = 'classic';
+
+        // 性别选择
+        genderOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                genderOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                selectedGender = option.dataset.gender;
+            });
+        });
+
+        // 风格选择
+        styleOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                styleOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+                selectedStyle = option.dataset.style;
+            });
+        });
+
+        // 表单提交
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const surname = surnameInput.value.trim();
+
+            if (!surname) {
+                alert('请输入姓氏');
+                return;
+            }
+
+            if (!selectedGender) {
+                alert('请选择性别');
+                return;
+            }
+
+            generateNames(surname, selectedGender, selectedStyle);
+        });
+
+        // 生成名字
+        function generateNames(surname, gender, style) {
+            results.classList.remove('hidden');
+            loading.classList.remove('hidden');
+            nameList.innerHTML = '';
+
+            setTimeout(() => {
+                loading.classList.add('hidden');
+
+                const names = nameDatabase[gender][style];
+                const selectedNames = getRandomNames(names, 5);
+
+                selectedNames.forEach(nameData => {
+                    const fullName = surname + nameData.name;
+                    const score = calculateScore(fullName);
+                    createNameCard(fullName, nameData.meaning, score);
+                });
+            }, 1500);
+        }
+
+        // 获取随机名字
+        function getRandomNames(names, count) {
+            const shuffled = [...names].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, count);
+        }
+
+        // 计算姓名评分
+        function calculateScore(name) {
+            // 简单的评分算法
+            let score = 85;
+
+            // 名字长度影响
+            if (name.length === 3) score += 5;
+            if (name.length === 2) score += 3;
+
+            // 字符笔画复杂度（简化）
+            const complexChars = ['龙', '凤', '麟', '鹏', '瑶', '璇', '霖', '睿', '瀚', '澄'];
+            if (complexChars.some(char => name.includes(char))) {
+                score += 3;
+            }
+
+            // 添加随机因子
+            score += Math.floor(Math.random() * 10) - 5;
+
+            return Math.min(Math.max(score, 75), 98);
+        }
+
+        // 创建名字卡片
+        function createNameCard(fullName, meaning, score) {
+            const card = document.createElement('div');
+            card.className = 'result-item';
+            card.innerHTML = `
+                <div class="name-display">${fullName}</div>
+                <div class="name-meaning">${meaning}</div>
+                <div class="name-score">
+                    <span class="score-text">综合评分：${score}分</span>
+                    <button class="copy-btn" onclick="copyName('${fullName}')">复制名字</button>
+                </div>
+            `;
+            nameList.appendChild(card);
+        }
+
+        // 复制名字
+        function copyName(name) {
+            navigator.clipboard.writeText(name).then(() => {
+                alert(`已复制：${name}`);
+            }).catch(() => {
+                // 兼容旧浏览器
+                const textArea = document.createElement('textarea');
+                textArea.value = name;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert(`已复制：${name}`);
+            });
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            // 默认选中诗词典雅风格
+            styleOptions[0].classList.add('active');
+        });
+    </script>
+</body>
+</html>

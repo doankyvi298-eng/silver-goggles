@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线教育培训平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #667eea;
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .search-box {
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .search-box button {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+
+        .category-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        .category-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .category-tabs::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 2px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: white;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .courses {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .course-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .course-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .course-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .course-content {
+            padding: 20px;
+        }
+
+        .course-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .course-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .course-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .course-price {
+            font-size: 20px;
+            color: #ff6b6b;
+            font-weight: bold;
+        }
+
+        .course-students {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .course-teacher {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .teacher-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        .teacher-name {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .course-rating {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 15px;
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 16px;
+        }
+
+        .enroll-btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .enroll-btn:hover {
+            background: #5568d3;
+            transform: scale(1.02);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .feature-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .feature-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .testimonials {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .testimonials h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+        }
+
+        .testimonial-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .testimonial {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .testimonial-text {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .testimonial-author {
+            font-size: 12px;
+            color: #666;
+            text-align: right;
+        }
+
+        footer {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 600px;
+            margin: 50px auto;
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            background: #5568d3;
+        }
+
+        @media (max-width: 768px) {
+            .courses {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 在线教育培训平台</h1>
+            <p class="subtitle">随时随地，学你所想</p>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="搜索课程、讲师或技能...">
+                <button onclick="searchCourse()">搜索</button>
+            </div>
+
+            <div class="category-tabs">
+                <div class="tab active" onclick="filterCategory('all')">全部课程</div>
+                <div class="tab" onclick="filterCategory('programming')">编程开发</div>
+                <div class="tab" onclick="filterCategory('design')">设计创意</div>
+                <div class="tab" onclick="filterCategory('business')">商业管理</div>
+                <div class="tab" onclick="filterCategory('language')">语言学习</div>
+                <div class="tab" onclick="filterCategory('exam')">考试认证</div>
+                <div class="tab" onclick="filterCategory('hobby')">兴趣爱好</div>
+            </div>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">1000+</div>
+                <div class="stat-label">精品课程</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">500+</div>
+                <div class="stat-label">名师讲师</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">50万+</div>
+                <div class="stat-label">学员在线</div>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🎓</div>
+                <div class="feature-title">专业认证</div>
+                <div class="feature-description">完成课程获取行业认可的专业证书，提升职业竞争力</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⏰</div>
+                <div class="feature-title">灵活学习</div>
+                <div class="feature-description">随时随地在线学习，支持离线缓存，自由掌握学习节奏</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💬</div>
+                <div class="feature-title">互动答疑</div>
+                <div class="feature-description">实时在线答疑，作业点评，社区交流，学习不孤单</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <div class="feature-title">学习追踪</div>
+                <div class="feature-description">智能学习数据分析，个性化学习路径推荐</div>
+            </div>
+        </div>
+
+        <div class="courses" id="courseList">
+            <div class="course-card" data-category="programming">
+                <div class="course-image">💻</div>
+                <div class="course-content">
+                    <div class="course-title">Python全栈开发实战</div>
+                    <div class="course-description">从零基础到实战项目，掌握Python Web开发、数据分析、自动化等核心技能</div>
+                    <div class="course-teacher">
+                        <div class="teacher-avatar">张</div>
+                        <div class="teacher-name">张老师 · 10年开发经验</div>
+                    </div>
+                    <div class="course-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span style="font-size: 12px; color: #666; margin-left: 5px;">4.9 (1256评价)</span>
+                    </div>
+                    <div class="course-meta">
+                        <div class="course-price">¥899</div>
+                        <div class="course-students">12,456人已学</div>
+                    </div>
+                    <button class="enroll-btn" onclick="enrollCourse('Python全栈开发实战')">立即报名</button>
+                </div>
+            </div>
+
+            <div class="course-card" data-category="design">
+                <div class="course-image">🎨</div>
+                <div class="course-content">
+                    <div class="course-title">UI/UX设计全能班</div>
+                    <div class="course-description">系统学习用户体验设计、界面设计、交互原型，成为专业UI设计师</div>
+                    <div class="course-teacher">
+                        <div class="teacher-avatar">李</div>
+                        <div class="teacher-name">李老师 · 资深设计师</div>
+                    </div>
+                    <div class="course-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span style="font-size: 12px; color: #666; margin-left: 5px;">4.8 (892评价)</span>
+                    </div>
+                    <div class="course-meta">
+                        <div class="course-price">¥1,299</div>
+                        <div class="course-students">8,234人已学</div>
+                    </div>
+                    <button class="enroll-btn" onclick="enrollCourse('UI/UX设计全能班')">立即报名</button>
+                </div>
+            </div>
+
+            <div class="course-card" data-category="business">
+                <div class="course-image">💼</div>
+                <div class="course-content">
+                    <div class="course-title">数字营销实战训练营</div>
+                    <div class="course-description">掌握SEO、SEM、社交媒体营销等数字营销核心技能，助力业务增长</div>
+                    <div class="course-teacher">
+                        <div class="teacher-avatar">王</div>
+                        <div class="teacher-name">王老师 · 营销总监</div>
+                    </div>
+                    <div class="course-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">☆</span>
+                        <span style="font-size: 12px; color: #666; margin-left: 5px;">4.7 (634评价)</span>
+                    </div>
+                    <div class="course-meta">
+                        <div class="course-price">¥799</div>
+                        <div class="course-students">5,678人已学</div>
+                    </div>
+                    <button class="enroll-btn" onclick="enrollCourse('数字营销实战训练营')">立即报名</button>
+                </div>
+            </div>
+
+            <div class="course-card" data-category="language">
+                <div class="course-image">🌍</div>
+                <div class="course-content">
+                    <div class="course-title">零基础英语口语突破</div>
+                    <div class="course-description">外教一对一教学，情景式学习，3个月流利说英语</div>
+                    <div class="course-teacher">
+                        <div class="teacher-avatar">S</div>
+                        <div class="teacher-name">Sarah · 英国外教</div>
+                    </div>
+                    <div class="course-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span style="font-size: 12px; color: #666; margin-left: 5px;">5.0 (2134评价)</span>
+                    </div>
+                    <div class="course-meta">
+                        <div class="course-price">¥1,599</div>
+                        <div class="course-students">15,234人已学</div>
+                    </div>
+                    <button class="enroll-btn" onclick="enrollCourse('零基础英语口语突破')">立即报名</button>
+                </div>
+            </div>
+
+            <div class="course-card" data-category="programming">
+                <div class="course-image">📱</div>
+                <div class="course-content">
+                    <div class="course-title">移动应用开发精品课</div>
+                    <div class="course-description">学习iOS和Android开发，掌握React Native跨平台开发技术</div>
+                    <div class="course-teacher">
+                        <div class="teacher-avatar">陈</div>
+                        <div class="teacher-name">陈老师 · 技术专家</div>
+                    </div>
+                    <div class="course-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span style="font-size: 12px; color: #666; margin-left: 5px;">4.9 (756评价)</span>
+                    </div>
+                    <div class="course-meta">
+                        <div class="course-price">¥1,099</div>
+                        <div class="course-students">6,789人已学</div>
+                    </div>
+                    <button class="enroll-btn" onclick="enrollCourse('移动应用开发精品课')">立即报名</button>
+                </div>
+            </div>
+
+            <div class="course-card" data-category="exam">
+                <div class="course-image">📝</div>
+                <div class="course-content">
+                    <div class="course-title">PMP项目管理认证</div>
+                    <div class="course-description">专业PMP考试培训，高通过率，助你获取国际项目管理认证</div>
+                    <div class="course-teacher">
+                        <div class="teacher-avatar">刘</div>
+                        <div class="teacher-name">刘老师 · PMP讲师</div>
+                    </div>
+                    <div class="course-rating">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span style="font-size: 12px; color: #666; margin-left: 5px;">4.8 (423评价)</span>
+                    </div>
+                    <div class="course-meta">
+                        <div class="course-price">¥2,999</div>
+                        <div class="course-students">3,456人已学</div>
+                    </div>
+                    <button class="enroll-btn" onclick="enrollCourse('PMP项目管理认证')">立即报名</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="testimonials">
+            <h2>🌟 学员评价</h2>
+            <div class="testimonial-list">
+                <div class="testimonial">
+                    <div class="testimonial-text">"课程内容非常实用，老师讲解清晰易懂。学完Python课程后，我成功转行成为了一名开发工程师，薪资翻倍！"</div>
+                    <div class="testimonial-author">—— 小明，软件工程师</div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-text">"UI设计课程让我从零基础到独立完成项目，现在已经是一家互联网公司的设计主管了。感谢平台和老师！"</div>
+                    <div class="testimonial-author">—— 小红，UI设计师</div>
+                </div>
+                <div class="testimonial">
+                    <div class="testimonial-text">"学习时间很灵活，可以利用碎片时间学习。课程质量高，而且有很多实战项目，学以致用。"</div>
+                    <div class="testimonial-author">—— 小李，产品经理</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 在线教育培训平台 | 让学习更简单</p>
+            <p style="margin-top: 10px; font-size: 12px;">客服热线: 400-888-8888 | 邮箱: service@education.com</p>
+        </footer>
+    </div>
+
+    <div class="modal" id="enrollModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2 style="color: #667eea; margin-bottom: 20px;">📝 课程报名</h2>
+            <form onsubmit="submitEnrollment(event)">
+                <div class="form-group">
+                    <label>课程名称</label>
+                    <input type="text" id="courseName" readonly>
+                </div>
+                <div class="form-group">
+                    <label>姓名 *</label>
+                    <input type="text" id="userName" required placeholder="请输入您的姓名">
+                </div>
+                <div class="form-group">
+                    <label>手机号 *</label>
+                    <input type="tel" id="userPhone" required placeholder="请输入您的手机号">
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="userEmail" placeholder="请输入您的邮箱">
+                </div>
+                <div class="form-group">
+                    <label>学习目标</label>
+                    <textarea id="learningGoal" placeholder="简单描述您的学习目标和期望..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">提交报名</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function filterCategory(category) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const courses = document.querySelectorAll('.course-card');
+            courses.forEach(course => {
+                if (category === 'all' || course.dataset.category === category) {
+                    course.style.display = 'block';
+                } else {
+                    course.style.display = 'none';
+                }
+            });
+        }
+
+        function searchCourse() {
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            const courses = document.querySelectorAll('.course-card');
+
+            courses.forEach(course => {
+                const title = course.querySelector('.course-title').textContent.toLowerCase();
+                const description = course.querySelector('.course-description').textContent.toLowerCase();
+
+                if (title.includes(searchText) || description.includes(searchText)) {
+                    course.style.display = 'block';
+                } else {
+                    course.style.display = 'none';
+                }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchCourse();
+            }
+        });
+
+        function enrollCourse(courseName) {
+            document.getElementById('courseName').value = courseName;
+            document.getElementById('enrollModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('enrollModal').style.display = 'none';
+        }
+
+        function submitEnrollment(event) {
+            event.preventDefault();
+
+            const courseName = document.getElementById('courseName').value;
+            const userName = document.getElementById('userName').value;
+            const userPhone = document.getElementById('userPhone').value;
+            const userEmail = document.getElementById('userEmail').value;
+            const learningGoal = document.getElementById('learningGoal').value;
+
+            alert(`报名成功！\n\n课程：${courseName}\n姓名：${userName}\n手机：${userPhone}\n\n我们的课程顾问将在24小时内与您联系！`);
+
+            closeModal();
+            event.target.reset();
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('enrollModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
