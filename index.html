@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>八卦周 - 云计算运维专家</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 头部区域 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .avatar {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #667eea;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-content {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .name {
+            font-size: 2.5em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .title {
+            font-size: 1.3em;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .intro {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.8;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-title {
+            font-size: 1.8em;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        /* 技能标签 */
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .skill-tag {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        /* 项目经验 */
+        .project {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+        }
+
+        .project-name {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .project-desc {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .responsibilities {
+            margin-top: 15px;
+        }
+
+        .responsibilities h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .responsibilities ul {
+            margin-left: 20px;
+        }
+
+        .responsibilities li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        /* 成就区域 */
+        .achievement {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .achievement h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        /* 联系方式 */
+        .contact {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            flex: 1;
+            min-width: 200px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-item:hover {
+            transform: scale(1.05);
+        }
+
+        .contact-item h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .contact-item p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .name {
+                font-size: 2em;
+            }
+
+            .card-title {
+                font-size: 1.5em;
+            }
+
+            .avatar {
+                width: 150px;
+                height: 150px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card, .header {
+            animation: fadeIn 0.6s ease;
+        }
+
+        .card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .card:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部个人信息 -->
+        <div class="header">
+            <img src="avatar.jpg" alt="八卦周" class="avatar">
+            <div class="header-content">
+                <h1 class="name">八卦周</h1>
+                <p class="title">云计算运维专家 | 技术团队管理者</p>
+                <p class="intro">
+                    7年+云计算运维实战经验，专注于大型互联网云基础设施架构运维、自动化体系搭建与稳定性保障。
+                    深入研究 AI 与技术融合，专注 D2C、Copilot 等前沿技术。
+                </p>
+                <div class="skills">
+                    <span class="skill-tag">云计算运维</span>
+                    <span class="skill-tag">云原生技术</span>
+                    <span class="skill-tag">自动化运维</span>
+                    <span class="skill-tag">架构优化</span>
+                    <span class="skill-tag">团队管理</span>
+                    <span class="skill-tag">AI技术融合</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 核心能力 -->
+        <div class="card">
+            <h2 class="card-title">核心能力</h2>
+            <ul style="margin-left: 20px; color: #555;">
+                <li>大型互联网云基础设施架构运维与优化</li>
+                <li>多云环境下的资源治理与架构设计</li>
+                <li>云原生技术与运维自动化融合实践</li>
+                <li>技术团队管理与技术方向规划</li>
+                <li>稳定性保障体系建设与落地</li>
+            </ul>
+        </div>
+
+        <!-- 项目经验 -->
+        <div class="card">
+            <h2 class="card-title">项目经验</h2>
+            <div class="project">
+                <h3 class="project-name">中国移动云南公司政企云项目</h3>
+                <p class="project-desc">
+                    负责资源池日常运维工作，包括资源池日常巡检、告警处理、故障处理以及云租户售前、售中、售后相关支撑。
+                </p>
+
+                <div class="responsibilities">
+                    <h4>一、技术方案支撑</h4>
+                    <ul>
+                        <li><strong>技术咨询：</strong>解答客户关于云服务特性、架构、可用性、容灾安全性、数据安全和隐私保护措施等方面的疑问</li>
+                        <li><strong>方案支撑：</strong>编写技术方案、管理办法、实施细则</li>
+                    </ul>
+
+                    <h4>二、售中支撑</h4>
+                    <ul>
+                        <li><strong>资源开通：</strong>根据客户订购云产品进行产品开通交付实施</li>
+                        <li><strong>数据配置：</strong>网络服务配置、安全服务配置、云产品功能配置</li>
+                        <li><strong>客户培训：</strong>提供云产品使用培训</li>
+                    </ul>
+
+                    <h4>三、售后支撑</h4>
+                    <ul>
+                        <li><strong>巡检服务：</strong>平台巡检、现场巡检、问题处理</li>
+                        <li><strong>故障处理：</strong>日常故障定位排查、故障报告编写、硬件故障处理</li>
+                        <li><strong>日常支撑：</strong>系统备份、业务割接、配置变更</li>
+                    </ul>
+
+                    <h4>四、专项支撑</h4>
+                    <ul>
+                        <li><strong>重保支撑：</strong>保障前准备、重大节假日保障</li>
+                        <li><strong>测评支撑：</strong>平台评测、客户测评</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- 成就 -->
+        <div class="card">
+            <h2 class="card-title">核心成就</h2>
+            <div class="achievement">
+                <h3>🏆 云架构优化项目</h3>
+                <p>主导将传统虚拟机架构迁移至 Kubernetes 集群，实现运维效率提升 50%，系统故障恢复时间缩短 60%，获公司技术创新奖。</p>
+            </div>
+        </div>
+
+        <!-- 联系方式 -->
+        <div class="card">
+            <h2 class="card-title">联系方式</h2>
+            <div class="contact">
+                <a href="https://mp.weixin.qq.com/s/TmIsyEKJujMbndcb0Ee9Bg" target="_blank" class="contact-item">
+                    <h3>📱 公众号</h3>
+                    <p>关注获取最新技术分享</p>
+                </a>
+                <div class="contact-item">
+                    <h3>💬 微信</h3>
+                    <p>zga17308718819</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
